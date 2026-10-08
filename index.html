@@ -451,6 +451,9 @@
   .mode-badge{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;background:var(--turf);color:#fff;}
   .mode-card.soon .mode-badge{background:var(--ink-soft);}
   .brand{cursor:pointer;}
+  body.on-home .week-block,
+  body.on-home nav.tabs button[data-view],
+  body.on-home #backHomeBtn{display:none !important;}
   .tab-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:6px;vertical-align:middle;}
   .fb-item{padding:12px 0;border-bottom:1px solid var(--line);}
   .fb-meta{font-size:12px;color:var(--ink-soft);}
@@ -535,7 +538,7 @@
   }
 </style>
 </head>
-<body>
+<body class="on-home">
 
 <!-- Shown only if firebaseConfig hasn't been filled in -->
 <div id="setupBanner" class="setup-banner" style="display:none;">
@@ -554,7 +557,7 @@
     </div>
   </div>
   <nav class="tabs" id="tabs">
-    <button data-view="home" class="active">Home</button>
+    <button id="backHomeBtn">← Home</button>
     <button data-view="leaderboard">Leaderboard</button>
     <button data-view="picks">Make Picks</button>
     <button data-view="myPicks">My Picks</button>
@@ -619,6 +622,7 @@
         <p id="leaguesInterestMsg" style="font-size:13px;"></p>
       </div>
     </div>
+    <div style="margin-top:16px;"><button class="btn btn-outline" id="homeAdminBtn" style="display:none;">Admin panel</button></div>
   </section>
 
   <section class="view" id="view-leaderboard">
@@ -837,7 +841,7 @@ Miami, 41.05"></textarea>
       Firebase Console → Project settings → Your apps → SDK setup and config.
    ========================================================================= */
 const firebaseConfig = {
-   apiKey: "AIzaSyC51oydwg4JxH51PuI4cgXNzymqliHTq74",
+  apiKey: "AIzaSyC51oydwg4JxH51PuI4cgXNzymqliHTq74",
   authDomain: "fantasy-college-football.firebaseapp.com",
   projectId: "fantasy-college-football",
   storageBucket: "fantasy-college-football.firebasestorage.app",
@@ -1061,7 +1065,9 @@ async function enterApp(){
   document.getElementById('appMain').style.display = 'block';
   document.getElementById('whoAmI').textContent = currentUser.displayName;
 
+  showHome();
   const isAdmin = isAdminUser();
+  document.getElementById('homeAdminBtn').style.display = isAdminUser() ? '' : 'none';
   document.querySelector('[data-view="admin"]').style.display = isAdmin ? '' : 'none';
   document.getElementById('refreshBtn').style.display = isAdmin ? '' : 'none';
 
@@ -2044,8 +2050,20 @@ document.getElementById('rebuildLbBtn').addEventListener('click', async () => {
 });
 
 /* ---------- Home: mode picker + Leagues waitlist ---------- */
-function goToView(name){ document.querySelector('nav.tabs button[data-view="' + name + '"]').click(); }
-document.getElementById('brandHome').addEventListener('click', () => goToView('home'));
+function goToView(name){
+  document.body.classList.remove('on-home');
+  document.querySelector('nav.tabs button[data-view="' + name + '"]').click();
+}
+function showHome(){
+  document.body.classList.add('on-home');
+  document.querySelectorAll('nav.tabs button[data-view]').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('view-home').classList.add('active');
+  window.scrollTo(0, 0);
+}
+document.getElementById('brandHome').addEventListener('click', showHome);
+document.getElementById('backHomeBtn').addEventListener('click', showHome);
+document.getElementById('homeAdminBtn').addEventListener('click', () => goToView('admin'));
 document.getElementById('homePlayLadderBtn').addEventListener('click', () => goToView('picks'));
 document.getElementById('homeLeaderboardBtn').addEventListener('click', () => goToView('leaderboard'));
 let onLeaguesList = false;
