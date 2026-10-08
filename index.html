@@ -452,8 +452,7 @@
   .mode-card.soon .mode-badge{background:var(--ink-soft);}
   .brand{cursor:pointer;}
   body.on-home .week-block,
-  body.on-home nav.tabs button[data-view],
-  body.on-home #backHomeBtn{display:none !important;}
+  body.on-home nav.tabs button[data-view]{display:none !important;}
   .tab-dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);margin-left:6px;vertical-align:middle;}
   .fb-item{padding:12px 0;border-bottom:1px solid var(--line);}
   .fb-meta{font-size:12px;color:var(--ink-soft);}
@@ -557,7 +556,6 @@
     </div>
   </div>
   <nav class="tabs" id="tabs">
-    <button id="backHomeBtn">← Home</button>
     <button data-view="leaderboard">Leaderboard</button>
     <button data-view="picks">Make Picks</button>
     <button data-view="myPicks">My Picks</button>
@@ -622,7 +620,7 @@
         <p id="leaguesInterestMsg" style="font-size:13px;"></p>
       </div>
     </div>
-    <div style="margin-top:16px;"><button class="btn btn-outline" id="homeAdminBtn" style="display:none;">Admin panel</button></div>
+    <div style="margin-top:16px;display:flex;gap:8px;flex-wrap:wrap;"><button class="btn btn-outline" id="homeUpdatesBtn">What's New<span class="tab-dot" id="homeUpdatesDot" style="display:none;"></span></button><button class="btn btn-outline" id="homeAdminBtn" style="display:none;">Admin panel</button></div>
   </section>
 
   <section class="view" id="view-leaderboard">
@@ -2062,7 +2060,7 @@ function showHome(){
   window.scrollTo(0, 0);
 }
 document.getElementById('brandHome').addEventListener('click', showHome);
-document.getElementById('backHomeBtn').addEventListener('click', showHome);
+document.getElementById('homeUpdatesBtn').addEventListener('click', () => goToView('updates'));
 document.getElementById('homeAdminBtn').addEventListener('click', () => goToView('admin'));
 document.getElementById('homePlayLadderBtn').addEventListener('click', () => goToView('picks'));
 document.getElementById('homeLeaderboardBtn').addEventListener('click', () => goToView('leaderboard'));
@@ -2117,7 +2115,9 @@ async function checkUpdatesDot(){
   let seen = '';
   try { seen = localStorage.getItem(UPDATES_SEEN_KEY) || ''; } catch (e) {}
   const newest = updatesCache.length ? updatesCache[0].createdAt : '';
-  document.getElementById('updatesDot').style.display = (newest && newest > seen) ? 'inline-block' : 'none';
+  const showDot = (newest && newest > seen) ? 'inline-block' : 'none';
+  document.getElementById('updatesDot').style.display = showDot;
+  document.getElementById('homeUpdatesDot').style.display = showDot;
 }
 async function renderUpdates(){
   const wrap = document.getElementById('updatesWrap');
@@ -2132,6 +2132,7 @@ async function renderUpdates(){
     </div>`).join('');
   try { localStorage.setItem(UPDATES_SEEN_KEY, updatesCache[0].createdAt); } catch (e) {}
   document.getElementById('updatesDot').style.display = 'none';
+  document.getElementById('homeUpdatesDot').style.display = 'none';
 }
 document.getElementById('postUpdateBtn').addEventListener('click', async () => {
   const title = document.getElementById('updTitle').value.trim();
